@@ -20,7 +20,7 @@ public class Application {
 										//just because it sounds fun and will make a good addition to 
 										//my portfolio I think 
 
-		Controller controller = new Controller(new Service());
+		Controller controller = new Controller(new Service(new DAL()));
 		controller.registerEndpoint(app);
 		app.start(8080);
 		

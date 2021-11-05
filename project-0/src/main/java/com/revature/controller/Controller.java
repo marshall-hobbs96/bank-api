@@ -1,11 +1,19 @@
 package com.revature.controller;
 
+
+import java.sql.SQLException;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.revature.model.CharacterLimitException;
+import com.revature.model.Client;
 import com.revature.service.Service;
 
 import io.javalin.Javalin;
 import io.javalin.http.Handler;
 
 public class Controller {
+	
+	@JsonIgnoreProperties(ignoreUnknown = true)
 
 	private Service service; 
 	
@@ -19,12 +27,35 @@ public class Controller {
 		//controller level method for creating a new client. POST
 		//POST /clients: Creates a new client
 		
+		//Need to handle if names have more than 255 characters. This is our limit in our database. Also need to make sure 
+		//we have both a first and last name.
+		// I would like to disable exceptions for unrecognized fields in our json so I can handle that myself, but I can't figure that out
+		try {
+			Client newClient = ctx.bodyAsClass(Client.class);
+			Client returnClient = this.service.addClient(newClient);
+			ctx.json(returnClient);
+			ctx.status(201);
+		}
+		
+		catch(CharacterLimitException e) {
+			
+			ctx.result(e.getMessage());
+			
+		}
+		
+		catch(SQLException e) {
+			
+			ctx.result(e.getMessage());
+			
+		}
+		
 		
 	};
 	
 	public Handler getAllClients = (ctx) -> {
 		//controller level method for getting all clients. GET
 		//GET /clients: Gets all clients
+		//ctx.json(service.getAllClients());
 		
 		
 	};
@@ -45,6 +76,13 @@ public class Controller {
 	public Handler deleteClient = (ctx) -> {
 		//Controller level method for deleting specific client. DELETE
 		//DELETE /clients/{client_id}: Delete client with an id of X (if the client exists)
+		
+		
+	};
+	
+	public Handler createAccount = (ctx) -> {
+		//Controller level method responsible for creating an account for a client with a matching client_id
+		//Create a new account for a client with id of X (if client exists)
 		
 		
 	};
@@ -98,7 +136,16 @@ public class Controller {
 	
 	public void registerEndpoint(Javalin app) {
 		
-		app.post("/add", newClient);
+		app.post("/clients/newClient", newClient);	
+		app.get("/clients/getAllClients", getAllClients);
+		app.get("/clients/getClient", getClient);
+		app.put("/clients/updateClient", updateClient);
+		app.delete("/clients/deleteClient", deleteClient);
+		app.post("/accounts/createAccount", createAccount);
+		app.get("/accounts/getClientAccounts", getClientAccounts);
+		app.get("/accounts/getAccount", getAccount);
+		app.put("/accounts/updateAccount", updateAccount);
+		app.delete("/accounts/deleteAccount", deleteAccount);
 		
 	}
 	
