@@ -2,6 +2,7 @@ package com.revature.app;
 
 import com.revature.DAL.DAL;
 import com.revature.controller.Controller;
+import com.revature.controller.ExceptionMappingController;
 import com.revature.service.Service;
 
 import io.javalin.Javalin;
@@ -22,6 +23,10 @@ public class Application {
 
 		Controller controller = new Controller(new Service(new DAL()));
 		controller.registerEndpoint(app);
+		
+		ExceptionMappingController exceptionController = new ExceptionMappingController();
+		exceptionController.mapExceptions(app);
+		
 		app.start(8080);
 		
 	}

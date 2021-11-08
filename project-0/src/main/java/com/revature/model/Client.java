@@ -44,6 +44,15 @@ public class Client { // Client class for making client objects. 1 to 1 with cli
 		this.client_id = client_id;
 
 	}
+	
+	public Client(String first_name, String last_name) {
+		
+		this.first_name = first_name;
+		this.last_name = last_name;
+		
+		//Need to refactor this. Know I should be using constructor chaining. Not a priority to do right now.
+		
+	}
 
 	// getters and setters and equals and hashcode oh my
 	// i.e. dont bother going below here, all boring stuff

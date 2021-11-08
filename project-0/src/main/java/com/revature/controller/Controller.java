@@ -55,8 +55,19 @@ public class Controller {
 	public Handler getAllClients = (ctx) -> {
 		//controller level method for getting all clients. GET
 		//GET /clients: Gets all clients
-		//ctx.json(service.getAllClients());
+		//maybe I'll add some additional functionality to this later because it feels just too easy, but for now I'm pretty sure it meets the project requirements so *shrug*
 		
+		try {
+		ctx.json(service.getAllClients());
+		ctx.status(200);
+		}
+		
+		catch(SQLException e) {	//maybe different catches for what went wrong. No table? Empty table? Connection lost? But a lot of work just to make sure we get the right http status code 
+			
+			ctx.status(204);
+			ctx.result(e.getMessage());
+			
+		}
 		
 	};
 	
@@ -64,12 +75,42 @@ public class Controller {
 		//Controller level method for getting info on specific client. GET
 		//GET /clients/{client_id}: Get client with an id of X (if the client exists)
 		
+		try {
+		
+			Client newClient = ctx.bodyAsClass(Client.class);
+			Client returnClient = service.getClient(newClient.getClient_id());
+			ctx.json(returnClient);
+			ctx.status(200);
+			
+		}
+		
+		catch(SQLException e) {
+			
+			ctx.json(e.getMessage());
+			ctx.status(406); //Not acceptable
+			
+		}
+		
 		
 	};
 	
 	public Handler updateClient = (ctx) -> {
 		//Controller level method for updating info on specific client. PUT
 		//PUT /clients/{client_id}: Update client with an id of X (if the client exists)
+		/*try {
+			Client newClient = ctx.bodyAsClass(Client.class);
+			newClient = service.getClient(newClient.getClient_id());
+			newClient = service.updateClient(newClient.getClient_id());
+			ctx.json(newClient);
+			ctx.status(200);
+		}
+		
+		catch(SQLException e) {
+			
+			ctx.json(e.getMessage());
+			ctx.status(400);
+			
+		}*/
 		
 	};
 	
