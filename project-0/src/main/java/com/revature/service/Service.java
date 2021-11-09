@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.revature.DAL.DAL;
+import com.revature.model.Account;
 import com.revature.model.CharacterLimitException;
 import com.revature.model.Client;
 
@@ -102,6 +103,36 @@ public class Service {
 		return new Client();
 		//return dao.updateClient(client);
 		
+	}
+
+	public Object deleteClient(int i) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object createAccount(Account testAccount) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object getClientAccounts(int i) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object getClientAccount(int i, int j) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object deleteAccount(int i, int j) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object updateAccount(int i, Account testAccount) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

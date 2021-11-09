@@ -65,6 +65,32 @@ public class DAL {
 		
 	}
 	
+	public boolean clientHasAccounts(int clientId) throws SQLException {
+		
+		String sql = "SELECT * FROM Accounts WHERE client_id = ?";
+		
+		PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		statement.setInt(1, clientId);
+		
+		ResultSet  resultSet = statement.executeQuery();
+		
+		return resultSet.next();	//Will return true is any accounts exist associated with client_id. False otherwise 
+		
+	}
+	
+	public boolean accountExists(int accountId) throws SQLException {
+		
+		String sql = "SELECT * FROM Accounts WHERE account_id = ?";
+		
+		PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		statement.setInt(1, accountId);
+		
+		ResultSet resultSet = statement.executeQuery();
+		
+		return resultSet.next();
+		
+	}
+ 	
 	public Client newClient(Client client) throws SQLException { 
 		
 		String sql = "INSERT INTO Clients (first_name, last_name) " + " VALUES (?, ?);";
@@ -154,9 +180,12 @@ public class DAL {
 		
 	}
 	
-	public void deleteClient(int clientId) {
-		
-		
+	public boolean deleteClient(int clientId) {
+		//Return true on success, false on failure. 
+		//Just realized that delete client will have to either pass failure if accounts associated with client still exists or we'll have to delete all accounts when we delete client.
+		//Think it would make more sense for the client to specifically delete the accounts first, instead of automatically doing it when they delete a client. That way the person sending
+		//the HTTP request knows like hey, these accounts are going to have to be deleted to delete the client ya hear? 
+		return true;
 		
 	}
 	
@@ -193,9 +222,11 @@ public class DAL {
 		
 	}
 	
-	public void deleteAccount(int accountId) {
+	public boolean deleteAccount(int accountId) {
 		
+		//Return true on success, false on failure.
 		
+		return true;
 		
 	}
 	
