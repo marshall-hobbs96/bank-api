@@ -306,68 +306,131 @@ public class ControllerTest {
 	}
 	
 	@Test 
-	public void testUpdateClientWithIdPositive() {
+	public void testUpdateClientWithIdPositive() throws SQLException {
 		
 		
-		Client originalClient = new Client("first_name", "last_name");
-		//when(mockDao.updateAccount()).thenReturn(originalClient);
+		Client updateClient = new Client(1, "first_name", "last_name");
+		when(mockDao.clientExists(eq(1))).thenReturn(true);
+		when(mockDao.updateClient(updateClient)).thenReturn(updateClient);
 		
-		
-	}
-	
-	@Test 
-	public void testUpdateClientWithIdPositiveNullFirstName() {
-		
-		
-		
-	}
-	
-	@Test
-	public void testUpdateClientWithIdPositiveNullLastName() {
-		
-		
-		
-	}
-	
-	@Test
-	public void testUpdateClientWithIdNegativeDoesntExist() {
-		
-		
-		
-	}
-	
-	@Test
-	public void testUpdateClientWithIdNegativeEmptyFirstName() {
-		
-		
-		
-	}
-	
-	@Test
-	public void testUpdatClientWithIdNegativeEmptyLastName() {
-		
-		
+		assertEquals(updateClient, sut.updateClient(updateClient));
 		
 	}
 	
 	@Test 
-	public void testUpdateClientWithIdNegativeFirstNameTooLong() {
+	public void testUpdateClientWithIdPositiveNullFirstName() throws SQLException {	
 		
+		Client updateClient = new Client(1, null, "last_name");
+		Client expectedClient = new Client(1, "first_name", "last_name");
+		when(mockDao.clientExists(eq(1))).thenReturn(true);
+		when(mockDao.updateClient(updateClient)).thenReturn(expectedClient);
 		
+		assertEquals(expectedClient, sut.updateClient(updateClient));
 		
 	}
 	
 	@Test
-	public void testUpdateClientWithIdNegativeLastNameTooLong() {
+	public void testUpdateClientWithIdPositiveNullLastName() throws SQLException {
 		
+		Client updateClient = new Client(1, "first_name", null);
+		Client expectedClient = new Client(1, "first_name", "last_name");
+	
+		when(mockDao.clientExists(eq(1))).thenReturn(true);
+		when(mockDao.updateClient(updateClient)).thenReturn(expectedClient);
 		
+		assertEquals(expectedClient, sut.updateClient(updateClient));
+		
+	}
+	
+	@Test
+	public void testUpdateClientWithIdNegativeDoesntExist() throws SQLException {
+		
+		Client updateClient = new Client(1, "first_name",  "last_name");
+		when(mockDao.clientExists(eq(1))).thenReturn(false);
+		when(mockDao.updateClient(updateClient)).thenReturn(updateClient); //Shouldn't reach this if test passes, but figured id put it here anyways because I don't know how junit would react if i didn't
+		
+		Assertions.assertThrows(SQLException.class, () -> {
+			
+			sut.updateClient(updateClient);
+			
+		});
+		
+	}
+	
+	@Test
+	public void testUpdateClientWithIdNegativeEmptyFirstName() throws SQLException {
+		
+		Client testClient = new Client(1, "   ", "last_name");
+		when(mockDao.clientExists(eq(1))).thenReturn(true);
+		
+		Assertions.assertThrows(CharacterLimitException.class, () -> {
+			
+			sut.updateClient(testClient);
+			
+		});
+		
+	}
+	
+	@Test
+	public void testUpdatClientWithIdNegativeEmptyLastName() throws SQLException {
+		
+		Client testClient = new Client(1, "first_name", "     ");
+		when(mockDao.clientExists(eq(1))).thenReturn(true);
+		
+		Assertions.assertThrows(CharacterLimitException.class, () -> {
+			
+			sut.updateClient(testClient);
+			
+		});
+		
+	}
+	
+	@Test 
+	public void testUpdateClientWithIdNegativeFirstNameTooLong() throws SQLException {
+		
+		String really_long_string = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+				+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+				+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+		
+		Client testClient = new Client(1, really_long_string, "last_name");
+		when(mockDao.clientExists(eq(1))).thenReturn(true);
+		
+		Assertions.assertThrows(CharacterLimitException.class, () -> {
+			
+			sut.updateClient(testClient);
+			
+		});
+
+		
+	}
+	
+	@Test
+	public void testUpdateClientWithIdNegativeLastNameTooLong() throws SQLException {
+		
+		String really_long_string = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+				+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+				+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+		
+		Client testClient = new Client(1, "first_name", really_long_string);
+		when(mockDao.clientExists(eq(1))).thenReturn(true);
+		
+		Assertions.assertThrows(CharacterLimitException.class, () -> {
+			
+			
+			sut.updateClient(testClient);
+			
+			
+		});
 		
 	}
 	
 	@Test
 	public void testUpdateClientWithIdNegativeWhitespaceBetweenCharactersFirstName() {
 	
-	
+		
+		
+		
+		
 	}
 	
 	@Test

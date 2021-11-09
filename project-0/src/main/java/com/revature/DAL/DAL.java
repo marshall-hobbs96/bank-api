@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import org.postgresql.Driver;
 
+import com.revature.model.Account;
 import com.revature.model.Client;
 
 public class DAL {
@@ -47,6 +48,20 @@ public class DAL {
 		}
 		
 
+		
+	}
+	
+	public boolean clientExists(int clientId) throws SQLException {	//used to check if a client with id = clientId currently exists in the database. Better than trying getClient and having to catch an exception
+												//in order to check if a client is in the database. Mostly to be used as helper function 
+		
+		String sql = "SELECT * FROM Clients WHERE client_id = ?";
+		
+		PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		statement.setInt(1, clientId);
+		
+		ResultSet resultSet = statement.executeQuery();
+		
+		return resultSet.next(); 
 		
 	}
 	
@@ -133,43 +148,52 @@ public class DAL {
 		
 	}
 	
-	public Client updateClient(String new_first_name, String new_last_name)  throws SQLException{
+	public Client updateClient(Client newClient)  throws SQLException{
 		
 		return new Client();
 		
 	}
 	
-	public void deleteClient() {
+	public void deleteClient(int clientId) {
 		
 		
 		
 	}
 	
-	public void createAccount() {
+	public Account createAccount(Account newAccount) {
 		
-		
-		
-	}
-	
-	public void getClientAccount() {
-		
-		
+		return newAccount;
 		
 	}
 	
-	public void getAccount() {
+	public ArrayList<Account> getClientAccounts(int clientId) {	//Get all accounts associated with given client 
 		
-		
-		
-	}
-	
-	public void updateAccount() {
-		
-		
+		ArrayList<Account> clientAccounts = new ArrayList<>();
+		return clientAccounts; 
 		
 	}
 	
-	public void deleteAccount() {
+	public ArrayList<Account> getClientAccounts(int clientId, double lessThan, double greaterThan) {	//get all accounts associated with given client with funds between two given values 
+		
+		ArrayList<Account> clientAccounts = new ArrayList<>();
+		return clientAccounts; 
+		
+	}
+	
+	public Account getAccount(int accountId) {
+		
+		Account clientAccount = new Account();
+		return clientAccount; 
+		
+	}
+	
+	public Account updateAccount(Account accountToUpdate) {
+		
+		return accountToUpdate; 
+		
+	}
+	
+	public void deleteAccount(int accountId) {
 		
 		
 		
