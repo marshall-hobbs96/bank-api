@@ -39,12 +39,14 @@ public class Controller {
 		
 		catch(CharacterLimitException e) {
 			
+			ctx.status(406);
 			ctx.result(e.getMessage());
 			
 		}
 		
 		catch(SQLException e) {
 			
+			ctx.status(400);
 			ctx.result(e.getMessage());
 			
 		}

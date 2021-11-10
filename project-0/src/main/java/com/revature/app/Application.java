@@ -1,5 +1,8 @@
 package com.revature.app;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.revature.DAL.DAL;
 import com.revature.controller.Controller;
 import com.revature.controller.ExceptionMappingController;
@@ -21,6 +24,15 @@ public class Application {
 										//just because it sounds fun and will make a good addition to 
 										//my portfolio I think 
 
+		/*Logger logger = LoggerFactory.getLogger(Application.class);
+		
+		app.before(ctx -> {
+			
+			logger.info(ctx.method() + " request received to the " + ctx.path() + " endpoint");
+			
+		});*/
+		
+		
 		Controller controller = new Controller(new Service(new DAL()));
 		controller.registerEndpoint(app);
 		

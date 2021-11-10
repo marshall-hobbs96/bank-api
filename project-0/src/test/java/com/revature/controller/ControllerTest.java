@@ -11,7 +11,11 @@ import java.util.ArrayList;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
 
 import com.revature.DAL.DAL;
 import com.revature.model.Account;
@@ -19,10 +23,11 @@ import com.revature.model.CharacterLimitException;
 import com.revature.model.Client;
 import com.revature.service.Service;
 
+@TestMethodOrder(MethodName.class)
 public class ControllerTest {
 
-	private static Service sut;
-	private static DAL mockDao; 
+	private  Service sut;
+	private  DAL mockDao; 
 
 	// Test scenarios for addClient:
 	// positive test
@@ -31,8 +36,8 @@ public class ControllerTest {
 	// negative test, whitespace between characters
 	// negative test, special characters used
 
-	@BeforeAll
-	public static void DaoAndServiceSetup() {
+	@BeforeEach
+	public void DaoAndServiceSetup() {
 		
 		mockDao = mock(DAL.class);
 		sut = new Service(mockDao);
@@ -60,7 +65,6 @@ public class ControllerTest {
 	}
 
 	@Test
-
 	public void testAddClientNegativeEmptyFirstName() {
 		// Test for when client is attempted to be added when it has nothing but
 		// whitespace for the first name
@@ -107,8 +111,7 @@ public class ControllerTest {
 		// JSON header/body is missing for a client to add.
 
 
-		Client testClient = new Client("", "last_name");
-		testClient.setFirst_name(null);
+		Client testClient = new Client(null, "last_name");
 
 		CharacterLimitException e = Assertions.assertThrows(CharacterLimitException.class, () -> {
 
@@ -148,7 +151,7 @@ public class ControllerTest {
 				+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 				+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
-		Client testClient = new Client(really_long_string, "last_name");
+		Client testClient = new Client(really_long_string, "lastName");
 
 		CharacterLimitException e = Assertions.assertThrows(CharacterLimitException.class, () -> {
 
@@ -170,7 +173,7 @@ public class ControllerTest {
 				+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 				+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
-		Client testClient = new Client("first_name", really_long_string);
+		Client testClient = new Client("firstName", really_long_string);
 
 		CharacterLimitException e = Assertions.assertThrows(CharacterLimitException.class, () -> {
 
@@ -192,7 +195,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Unable to add client. First name is not one word (whitespace between characters).", e.getMessage());
+		assertEquals("Unable to add client. First name must only contain letters. No whitespace between characters.", e.getMessage());
 		
 	}
 	
@@ -206,7 +209,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Unable to add client. Last name is not one word (whitespace between characters).", e.getMessage());
+		assertEquals("Unable to add client. First name must only contain letters. No whitespace between characters.", e.getMessage());
 		
 	}
 	
@@ -220,7 +223,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Unable to add client. First name contains special characters.", e.getMessage());
+		assertEquals("Unable to add client. First name must only contain letters. No whitespace between characters.", e.getMessage());
 		
 	}
 	
@@ -234,7 +237,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Unable to add client. Last name contains special characters.", e.getMessage());
+		assertEquals("Unable to add client. First name must only contain letters. No whitespace between characters.", e.getMessage());
 		
 	}
 	
@@ -246,8 +249,10 @@ public class ControllerTest {
 
 		ArrayList<Client> clientArray = new ArrayList<>(); 
 		
-		clientArray.add(new Client("John", "Doe"));
-		clientArray.add(new Client("Jane", "Doe"));
+		clientArray.add(new Client(1, "John", "Doe"));
+		clientArray.add(new Client(2, "Jane", "Doe"));
+		
+		
 		
 		
 		when(mockDao.getAllClients()).thenReturn(clientArray);
@@ -259,7 +264,7 @@ public class ControllerTest {
 	@Test
 	public void testGetAllClientsNegativeTableEmpty() throws SQLException {
 
-		when(mockDao.getAllClients()).thenThrow(new SQLException("No clients to get. clients table is empty"));
+		when(mockDao.getAllClients()).thenThrow(new SQLException("No clients to get. C/lients table is empty."));
 		
 		SQLException e = assertThrows(SQLException.class, () -> {
 			
@@ -273,13 +278,12 @@ public class ControllerTest {
 		
 	}
 	
-	//@Test 
-	//commenting this out because I don't want to pass this until I've implemented the corresponding features in my DAL. 
+	@Test 
 	public void testGetAllClientsNegativeNoTable() throws SQLException {
 		//This is a pretty serious issue if we run into it. Nothing our program can really do. Its an issue with the database itself. Should still handle it graciously though 
 		//OK I just realized im mocking features from my DAL that I haven't implemented yet. I know this is just to test service layer, but this can be dangerous i think. 
 		//Need to be sure I don't forget to implement these features. 
-		when(mockDao.getAllClients()).thenThrow(new SQLException("Clients table does not exist"));
+		when(mockDao.getAllClients()).thenThrow(new SQLException("Clients table does not exist."));
 		
 		
 		SQLException e = assertThrows(SQLException.class, () -> {
@@ -308,7 +312,7 @@ public class ControllerTest {
 	@Test 
 	public void testGetClientWithIdNegativeDoesntExist() throws SQLException {
 		
-		when(mockDao.getClient(eq(1))).thenThrow(new SQLException("No client with that id"));
+		when(mockDao.getClient(eq(1))).thenThrow(new SQLException("No client with that id."));
 		
 		SQLException e = assertThrows(SQLException.class, () -> {
 			
@@ -393,7 +397,7 @@ public class ControllerTest {
 	}
 	
 	@Test
-	public void testUpdatClientWithIdNegativeEmptyLastName() throws SQLException {
+	public void testUpdateClientWithIdNegativeEmptyLastName() throws SQLException {
 		
 		Client testClient = new Client(1, "first_name", "     ");
 		when(mockDao.clientExists(eq(1))).thenReturn(true);

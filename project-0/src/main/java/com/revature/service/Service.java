@@ -2,6 +2,8 @@ package com.revature.service;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.revature.DAL.DAL;
 import com.revature.model.Account;
@@ -26,31 +28,52 @@ public class Service {
 		
 		//First trim leading and trailing whitespace. Won't throw an error here, we'll assume its an honest mistake and hasn't affected the actual intended names
 		
+		
+		if((clientToAdd.getFirst_name() == null)) {
+			
+			throw new CharacterLimitException("Unable to add client. First name is null.");
+			
+		} else if ((clientToAdd.getLast_name() == null)) {
+			
+			throw new CharacterLimitException("Unable to add client. Last name is null.");
+			
+		}
+		
+		//Have to take care of potential nulls first. Then we can trim. If names were null, would throw nullpointerexception when we tried to trim. Best to avoid that. 
+		
 		clientToAdd.setFirst_name(clientToAdd.getFirst_name().trim());
 		clientToAdd.setLast_name(clientToAdd.getLast_name().trim());
+		Pattern pattern = Pattern.compile("[^a-z]", Pattern.CASE_INSENSITIVE);	//I kinda decided if I wanted to do this for real, I would allow the user to input anything they want as their names, because who am I to decide what
+																			//Should and shouldnt go into an name. However, I also spent a lot of time, thougth, and effort into how I would filter out special characters and whitespace between 
+																			//Characters in the names, so I'm going to leave this in my project. And if anyone has any complaints, its my project and I can do what I want :p
+		Matcher firstNameMatcher = pattern.matcher(clientToAdd.getFirst_name());
+		Matcher lastNameMatcher = pattern.matcher(clientToAdd.getLast_name());
 		
-		if((clientToAdd.getFirst_name() == null) || (clientToAdd.getFirst_name().equals(""))) {
+		if(clientToAdd.getFirst_name() == "" ) {
 			
-			throw new CharacterLimitException("First name cannot be empty");
+			throw new CharacterLimitException("Unable to add client. First name is an empty string.");
 			
+		} else if(clientToAdd.getLast_name() == "") {
 			
-		} else if((clientToAdd.getLast_name() == null) || (clientToAdd.getLast_name().equals(""))) {
+			throw new CharacterLimitException("Unable to add client. Last name is an empty string.");
 			
-			throw new CharacterLimitException("Last name cannot be empty");
+		}	else if (firstNameMatcher.find()) {
+			
+			throw new CharacterLimitException("Unable to add client. First name must only contain letters. No whitespace between characters.");
+			
+		} else if (lastNameMatcher.find()) {
+			
+			throw new CharacterLimitException("Unable to add client. Last name must only contain letters. No whitespace between characters.");	//Yes I know, there are more letters than the letters in the english alphabet. Just relax ok, its only a personal project
 			
 		} else if(clientToAdd.getFirst_name().length() > 255) {
 			
-			throw new CharacterLimitException("First name exceeds character limit"); 
-			
+			throw new CharacterLimitException("Unable to add client. First name exceeds acceptable number of characters (255).");
+	
 		} else if(clientToAdd.getLast_name().length() > 255) {
 			
-			throw new CharacterLimitException("Last name exceeds character limit");
+			throw new CharacterLimitException("Unable to add client. Last name exceeds acceptable number of character (255).");
 			
-		}
-
-
-		
-		else {	//Ok we checked to see if we have empty, null, or exceed character limit of names. Now lets check to see if a name is one word. 
+		} else {	//Ok we checked to see if we have empty, null, or exceed character limit of names. Now lets check to see if a name is one word. 
 			
 			
 			if(clientToAdd.getFirst_name().compareTo(clientToAdd.getFirst_name().replaceAll("\\s+", "")) != 0) { 
@@ -90,7 +113,7 @@ public class Service {
 	
 	public Client getClient(int client_id) throws SQLException {
 		
-		//what if we accidently pass client_id as a string? 
+		//what if we accidently pass client_id as a string? Won't encounter. JSON parsing will throw exception when we hit controller layer
 		
 		return dao.getClient(client_id); 
 		

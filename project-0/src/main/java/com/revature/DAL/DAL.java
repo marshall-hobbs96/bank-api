@@ -111,6 +111,7 @@ public class DAL {
 		}
 		
 		ResultSet resultSet = statement.getGeneratedKeys(); 
+		resultSet.next();
 		int automaticallyGeneratedId = resultSet.getInt(1);
 		
 		return new Client(automaticallyGeneratedId, client.getFirst_name(), client.getLast_name());
@@ -125,7 +126,7 @@ public class DAL {
 		
 		ArrayList<Client> returnList = new ArrayList<>(); 
 			
-		String sql = "SELECT client_id, first_name, last_name FROM clients;";
+		String sql = "SELECT * FROM clients;";
 		
 		PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		
@@ -209,7 +210,7 @@ public class DAL {
 		
 	}
 	
-	public Account getAccount(int accountId) {
+	public Account getAccount(int accountId) throws SQLException{
 		
 		Account clientAccount = new Account();
 		return clientAccount; 

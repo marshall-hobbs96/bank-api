@@ -2,6 +2,7 @@ package com.revature.controller;
 
 import java.sql.SQLException;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.revature.model.CharacterLimitException;
 
@@ -14,6 +15,13 @@ public class ExceptionMappingController {
 		app.exception(UnrecognizedPropertyException.class, (e, ctx) -> {
 			
 			ctx.status(400);
+			ctx.json(e.getMessage());
+			
+		});
+		
+		app.exception(InvalidFormatException.class, (e, ctx) -> {
+			
+			ctx.status(406); //Not acceptable. Body of JSON doesn't fit format required of header. 
 			ctx.json(e.getMessage());
 			
 		});
