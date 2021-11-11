@@ -8,11 +8,11 @@ public class Account {
 	private int account_id; 	//SERIAL PRIMARY KEY
 	private int client_id;		//FOREIGN KEY, matches client_id of Clients in Clients table/Clients in Client class. 
 	private String account_type;	//VARCHAR[255] 
-	private int funds;				//dollar dollar bills yall 
+	private Double funds;				//dollar dollar bills yall 
 	
 	public Account() {} //empty constructor, probably wont use
 	
-	public Account(int client_id, String account_type, int funds) {		//will probably use for sending through DAL 
+	public Account(int client_id, String account_type, double funds) {		//will probably use for sending through DAL 
 		
 		//
 		account_id = -1; //shouldn't be using anyways, but setting to -1 so at least we know it isnt valid if it is accessed. 
@@ -22,7 +22,7 @@ public class Account {
 		
 	}
 	
-	public Account(int account_id, int client_id, String account_type, int funds) {	//will probably use for receiving DAL info 
+	public Account(int account_id, int client_id, String account_type, double funds) {	//will probably use for receiving DAL info 
 		
 		this(client_id, account_type, funds);
 		this.account_id = account_id; 
@@ -58,11 +58,11 @@ public class Account {
 		this.account_type = account_type;
 	}
 
-	public int getFunds() {
+	public Double getFunds() {
 		return funds;
 	}
 
-	public void setFunds(int funds) {
+	public void setFunds(double funds) {
 		this.funds = funds;
 	}
 
@@ -82,6 +82,12 @@ public class Account {
 		Account other = (Account) obj;
 		return account_id == other.account_id && Objects.equals(account_type, other.account_type)
 				&& client_id == other.client_id && funds == other.funds;
+	}
+
+	@Override
+	public String toString() {
+		return "Account [account_id=" + account_id + ", client_id=" + client_id + ", account_type=" + account_type
+				+ ", funds=" + funds + "]";
 	}
 	
 	

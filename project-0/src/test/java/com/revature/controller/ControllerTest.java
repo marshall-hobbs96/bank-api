@@ -10,9 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
@@ -181,7 +179,7 @@ public class ControllerTest {
 
 		});
 		
-		assertEquals("Unable to add client. Last name exceeds acceptable number of character (255).", e.getMessage());
+		assertEquals("Unable to add client. Last name exceeds acceptable number of characters (255).", e.getMessage());
 
 	}
 	
@@ -264,7 +262,7 @@ public class ControllerTest {
 	@Test
 	public void testGetAllClientsNegativeTableEmpty() throws SQLException {
 
-		when(mockDao.getAllClients()).thenThrow(new SQLException("No clients to get. C/lients table is empty."));
+		when(mockDao.getAllClients()).thenThrow(new SQLException("No clients to get. Clients table is empty."));
 		
 		SQLException e = assertThrows(SQLException.class, () -> {
 			
@@ -325,11 +323,11 @@ public class ControllerTest {
 	}
 	
 	@Test 
-	public void testUpdateClientWithIdPositive() throws SQLException {
+	public void testUpdateClientWithIdPositive() throws SQLException, CharacterLimitException {
 		
-		
-		Client updateClient = new Client(1, "first_name", "last_name");
-		when(mockDao.clientExists(eq(1))).thenReturn(true);
+		Client originalClient = new Client(1, "John", "Doe");
+		Client updateClient = new Client(1, "firstName", "lastName");
+		when(mockDao.getClient(eq(1))).thenReturn(originalClient);
 		when(mockDao.updateClient(updateClient)).thenReturn(updateClient);
 		
 		assertEquals(updateClient, sut.updateClient(updateClient));
@@ -337,11 +335,12 @@ public class ControllerTest {
 	}
 	
 	@Test 
-	public void testUpdateClientWithIdPositiveNullFirstName() throws SQLException {	
+	public void testUpdateClientWithIdPositiveNullFirstName() throws SQLException, CharacterLimitException {	
 		
-		Client updateClient = new Client(1, null, "last_name");
-		Client expectedClient = new Client(1, "first_name", "last_name");
-		when(mockDao.clientExists(eq(1))).thenReturn(true);
+		Client updateClient = new Client(1, null, "lastName");
+		Client originalClient = new Client(1, "John", "Doe");
+		Client expectedClient = new Client(1, "John", "lastName");
+		when(mockDao.getClient(eq(1))).thenReturn(originalClient);
 		when(mockDao.updateClient(updateClient)).thenReturn(expectedClient);
 		
 		assertEquals(expectedClient, sut.updateClient(updateClient));
@@ -349,12 +348,13 @@ public class ControllerTest {
 	}
 	
 	@Test
-	public void testUpdateClientWithIdPositiveNullLastName() throws SQLException {
+	public void testUpdateClientWithIdPositiveNullLastName() throws SQLException, CharacterLimitException {
 		
-		Client updateClient = new Client(1, "first_name", null);
-		Client expectedClient = new Client(1, "first_name", "last_name");
+		Client updateClient = new Client(1, "firstName", null);
+		Client originalClient = new Client(1, "John", "Doe");
+		Client expectedClient = new Client(1, "firstName", "Doe");
 	
-		when(mockDao.clientExists(eq(1))).thenReturn(true);
+		when(mockDao.getClient(eq(1))).thenReturn(originalClient);
 		when(mockDao.updateClient(updateClient)).thenReturn(expectedClient);
 		
 		assertEquals(expectedClient, sut.updateClient(updateClient));
@@ -364,8 +364,8 @@ public class ControllerTest {
 	@Test
 	public void testUpdateClientWithIdNegativeDoesntExist() throws SQLException {
 		
-		Client updateClient = new Client(1, "first_name",  "last_name");
-		when(mockDao.clientExists(eq(1))).thenReturn(false);
+		Client updateClient = new Client(1, "firstName",  "lastName");
+		when(mockDao.getClient(eq(1))).thenThrow(new SQLException("Unable to update client. No client with that ID."));
 		when(mockDao.updateClient(updateClient)).thenReturn(updateClient); //Shouldn't reach this if test passes, but figured id put it here anyways because I don't know how junit would react if i didn't
 		
 		SQLException e = Assertions.assertThrows(SQLException.class, () -> {
@@ -383,7 +383,7 @@ public class ControllerTest {
 	@Test
 	public void testUpdateClientWithIdNegativeEmptyFirstName() throws SQLException {
 		
-		Client testClient = new Client(1, "   ", "last_name");
+		Client testClient = new Client(1, "   ", "lastName");
 		when(mockDao.clientExists(eq(1))).thenReturn(true);
 		
 		CharacterLimitException e = Assertions.assertThrows(CharacterLimitException.class, () -> {
@@ -399,7 +399,7 @@ public class ControllerTest {
 	@Test
 	public void testUpdateClientWithIdNegativeEmptyLastName() throws SQLException {
 		
-		Client testClient = new Client(1, "first_name", "     ");
+		Client testClient = new Client(1, "firstName", "     ");
 		when(mockDao.clientExists(eq(1))).thenReturn(true);
 		
 		CharacterLimitException e = Assertions.assertThrows(CharacterLimitException.class, () -> {
@@ -419,7 +419,7 @@ public class ControllerTest {
 				+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 				+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 		
-		Client testClient = new Client(1, really_long_string, "last_name");
+		Client testClient = new Client(1, really_long_string, "lastName");
 		when(mockDao.clientExists(eq(1))).thenReturn(true);
 		
 		CharacterLimitException e = Assertions.assertThrows(CharacterLimitException.class, () -> {
@@ -440,7 +440,7 @@ public class ControllerTest {
 				+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 				+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 		
-		Client testClient = new Client(1, "first_name", really_long_string);
+		Client testClient = new Client(1, "firstName", really_long_string);
 		when(mockDao.clientExists(eq(1))).thenReturn(true);
 		
 		CharacterLimitException e = Assertions.assertThrows(CharacterLimitException.class, () -> {
@@ -459,7 +459,7 @@ public class ControllerTest {
 	public void testUpdateClientWithIdNegativeWhitespaceBetweenCharactersFirstName() throws SQLException {
 	
 		
-		Client testClient = new Client(1, "first   name", "last_name");
+		Client testClient = new Client(1, "first   name", "lastName");
 		when(mockDao.clientExists(eq(1))).thenReturn(true);
 		
 		CharacterLimitException e = Assertions.assertThrows(CharacterLimitException.class, () -> {
@@ -468,7 +468,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Unable to update client. First name is not one word (whitespace between characters).", e.getMessage());
+		assertEquals("Unable to update client. First name must only contain letters. No whitespace between characters.", e.getMessage());
 		
 		
 	}
@@ -476,7 +476,7 @@ public class ControllerTest {
 	@Test
 	public void testUpdateClientWithIdNegativeWhitespaceBetweenCharactersLastName() throws SQLException {
 		
-		Client testClient = new Client(1, "first_name", "last    name");
+		Client testClient = new Client(1, "firstName", "last    name");
 		when(mockDao.clientExists(eq(1))).thenReturn(true);
 		
 		CharacterLimitException e = Assertions.assertThrows(CharacterLimitException.class, () -> {
@@ -487,7 +487,7 @@ public class ControllerTest {
 		
 		});
 		
-		assertEquals("Unable to update client. Last name is not one word (whitespace between characters).", e.getMessage());
+		assertEquals("Unable to update client. Last name must only contain letters. No whitespace between characters.", e.getMessage());
 		
 	}
 	
@@ -504,7 +504,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Unable to update client. First name contains special characters.", e.getMessage());
+		assertEquals("Unable to update client. First name must only contain letters. No whitespace between characters.", e.getMessage());
 		
 	}
 	
@@ -520,16 +520,19 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Unable to update client. Last name contains special characters.", e.getMessage());
+		assertEquals("Unable to update client. Last name must only contain letters. No whitespace between characters.", e.getMessage());
 		
 	}
 	
 	@Test
 	public void testDeleteClientWithIdPositive() throws SQLException {
 		
+		Client client = new Client(1, "firstName", "lastName");
+		ArrayList<Account> clientAccounts = new ArrayList<>();
 		
-		when(mockDao.clientExists(eq(1))).thenReturn(true); 
-		when(mockDao.clientHasAccounts(eq(1))).thenReturn(false);
+		when(mockDao.getClient(eq(1))).thenReturn(client); 
+		when(mockDao.getClientAccounts(eq(1))).thenReturn(clientAccounts);
+		when(mockDao.deleteClient(eq(1))).thenReturn(true);
 		
 		assertEquals(true, sut.deleteClient(1));
 		
@@ -539,8 +542,9 @@ public class ControllerTest {
 	@Test
 	public void testDeleteClientWithIdNegativeClientDoesntExist() throws SQLException {
 		
-		when(mockDao.clientExists(eq(1))).thenReturn(false);
-		when(mockDao.clientHasAccounts(eq(1))).thenReturn(false);
+
+		
+		when(mockDao.getClientAccounts(eq(1))).thenThrow(new SQLException("No client with that ID"));
 		
 		SQLException e = Assertions.assertThrows(SQLException.class, () -> {
 			
@@ -548,15 +552,21 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Unable to delete client. Client does not exist.", e.getMessage());
+		assertEquals("No client with that ID", e.getMessage());
 		
 	}
 	
 	@Test
 	public void testDeleteClientWithIdNegativeClientStillHasAccounts() throws SQLException {
 		
-		when(mockDao.clientExists(eq(1))).thenReturn(true);
-		when(mockDao.clientHasAccounts(eq(1))).thenReturn(true);
+		Client client = new Client(1, "firstName", "lastName");
+		ArrayList<Account> clientAccounts = new ArrayList<>();
+		Account account  = new Account(1, 1, "Savings", 500);
+		
+		clientAccounts.add(account);
+		
+		when(mockDao.getClient(eq(1))).thenReturn(client);
+		when(mockDao.getClientAccounts(eq(1))).thenReturn(clientAccounts);
 		
 		SQLException e = assertThrows(SQLException.class, () -> {
 			
@@ -564,11 +574,11 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Unable to delete client. Client still has accounts", e.getMessage());
+		assertEquals("Unable to delete client. Client still has accounts.", e.getMessage());
 	}
 	
 	@Test
-	public void testCreateAccountPositive() {
+	public void testCreateAccountPositive() throws SQLException, CharacterLimitException {
 		
 		Account testAccount = new Account(1, 1, "Savings", 500);
 		when(mockDao.createAccount(eq(testAccount))).thenReturn(testAccount);
@@ -581,7 +591,7 @@ public class ControllerTest {
 	public void testCreateAccountNegativeNoClientWithThatId() throws SQLException {
 		
 		Account testAccount = new Account(1, 1, "Savings", 500);
-		when(mockDao.clientExists(eq(1))).thenReturn(false);
+		when(mockDao.getClient(eq(1))).thenThrow(new SQLException("Unable to create account. Not matching client exists."));
 		
 		SQLException e = assertThrows(SQLException.class, () -> {
 			
@@ -616,8 +626,9 @@ public class ControllerTest {
 	public void testCreateAccountNegativeNegativeFunds() throws SQLException {
 		
 		Account testAccount = new Account(1, 1, "Savings", -500);
+		Client client = new Client(1, "firstName", "lastName");
 		
-		when(mockDao.clientExists(eq(1))).thenReturn(true);
+		when(mockDao.getClient(eq(1))).thenReturn(client);
 		
 		CharacterLimitException e = assertThrows(CharacterLimitException.class, () -> {
 			
@@ -630,7 +641,7 @@ public class ControllerTest {
 	}
 	
 	@Test
-	public void testGetAllClientAccountPositive() {	//This is for getting all the accounts associated with a specific client 
+	public void testGetAllClientAccountPositive() throws SQLException {	//This is for getting all the accounts associated with a specific client 
 		
 		ArrayList<Account> accountsList = new ArrayList<>(); 
 		
@@ -647,8 +658,9 @@ public class ControllerTest {
 	}
 	
 	@Test
-	public void testGetAllClientAccountPositiveWithFundsFilter() {
+	public void testGetAllClientAccountPositiveWithFundsFilter() throws SQLException {
 		
+		Client testClient = new Client(1, "firstName", "lastName");
 		ArrayList<Account> accountsList = new ArrayList<>();
 		Account testAccount1 = new Account(1, 1, "Savings", 500);
 		Account testAccount2 = new Account(2, 1, "Checkings", 1000);
@@ -656,9 +668,10 @@ public class ControllerTest {
 		accountsList.add(testAccount2);
 		ArrayList<Account> expectedList = new ArrayList<>();
 		expectedList.add(testAccount2);
-		when(mockDao.getClientAccounts(eq(1))).thenReturn(accountsList);
+		when(mockDao.getClient(eq(1))).thenReturn(testClient);
+		when(mockDao.getClientAccounts(1, 1100, 600)).thenReturn(expectedList);
 		
-		assertEquals(expectedList, sut.getClientAccounts(1));
+		assertEquals(expectedList, sut.getClientAccounts(1, 1100, 600));
 		
 		
 		
@@ -667,7 +680,7 @@ public class ControllerTest {
 	@Test
 	public void testGetAllClientAccountNegativeClientDoesntExist() throws SQLException {
 		
-		when(mockDao.clientExists(eq(1))).thenReturn(false);
+		when(mockDao.getClient(eq(1))).thenThrow(new SQLException("Cannot access client accounts. Client does not exist."));
 		
 		SQLException e = assertThrows(SQLException.class, () -> {
 			
@@ -749,7 +762,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Cannot get account. Account not owned by client", e.getMessage());
+		assertEquals("Unable to get account. Account does not belong to client.", e.getMessage());
 		
 	}
 	
@@ -783,7 +796,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Cannot delete account. Client does not exist.", e.getMessage());
+		assertEquals("Client does not exist", e.getMessage());
 		
 	}
 	
@@ -801,7 +814,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Cannot delete account. Account does not exist.", e.getMessage());
+		assertEquals("Cannot get account. Account does not exist.", e.getMessage());
 		
 	}
 	
@@ -820,7 +833,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Cannot delete account. Account does not belong to client.", e.getMessage());
+		assertEquals("Unable to get account. Account does not belong to client.", e.getMessage());
 		
 	}
 	
@@ -829,12 +842,13 @@ public class ControllerTest {
 		
 		Client testClient = new Client(1, "firstName", "lastName");
 		Account testAccount = new Account(1, 1, "Savings", 500);
+		Account updateAccount = new Account(1, 1, "Savings", 1000);
 		
 		when(mockDao.getClient(eq(1))).thenReturn(testClient);
 		when(mockDao.getAccount(eq(1))).thenReturn(testAccount);
-		when(mockDao.updateAccount(eq(testAccount))).thenReturn(testAccount);
+		when(mockDao.updateAccount(eq(updateAccount))).thenReturn(updateAccount);
 		
-		assertEquals(testAccount, sut.updateAccount(1, testAccount));
+		assertEquals(updateAccount, sut.updateAccount(1, updateAccount));
 		
 	}
 	
@@ -851,7 +865,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Cannot update account. Client does not exist.", e.getMessage());
+		assertEquals("Cannot get client. Client does not exist.", e.getMessage());
 		
 	}
 	
@@ -870,7 +884,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Cannot update account. Account does not exist", e.getMessage());
+		assertEquals("Cannot get account. Account does not exist.", e.getMessage());
 		
 	}
 	
@@ -889,7 +903,7 @@ public class ControllerTest {
 			
 		});
 		
-		assertEquals("Cannot update account. Account does not belong to client.", e.getMessage());
+		assertEquals("Unable to update account. Account does not belong to client.", e.getMessage());
 		
 	}
 	

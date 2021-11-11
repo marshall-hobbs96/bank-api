@@ -4,6 +4,7 @@ package com.revature.controller;
 import java.sql.SQLException;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.revature.model.Account;
 import com.revature.model.CharacterLimitException;
 import com.revature.model.Client;
 import com.revature.service.Service;
@@ -79,8 +80,9 @@ public class Controller {
 		
 		try {
 		
-			Client newClient = ctx.bodyAsClass(Client.class);
-			Client returnClient = service.getClient(newClient.getClient_id());
+			String param = ctx.queryParam("client_id");
+			int client_id = Integer.parseInt(param);
+			Client returnClient = service.getClient(client_id);
 			ctx.json(returnClient);
 			ctx.status(200);
 			
@@ -99,11 +101,13 @@ public class Controller {
 	public Handler updateClient = (ctx) -> {
 		//Controller level method for updating info on specific client. PUT
 		//PUT /clients/{client_id}: Update client with an id of X (if the client exists)
-		/*try {
+		try {
+			String param = ctx.queryParam("client_id");
+			int client_id = Integer.parseInt(param);
 			Client newClient = ctx.bodyAsClass(Client.class);
-			newClient = service.getClient(newClient.getClient_id());
-			newClient = service.updateClient(newClient.getClient_id());
-			ctx.json(newClient);
+			newClient.setClient_id(client_id);
+			Client returnClient = service.updateClient(newClient);
+			ctx.json(returnClient);
 			ctx.status(200);
 		}
 		
@@ -112,20 +116,39 @@ public class Controller {
 			ctx.json(e.getMessage());
 			ctx.status(400);
 			
-		}*/
+		}
 		
 	};
 	
 	public Handler deleteClient = (ctx) -> {
 		//Controller level method for deleting specific client. DELETE
 		//DELETE /clients/{client_id}: Delete client with an id of X (if the client exists)
+		String param = ctx.queryParam("client_id");
+		int client_id = Integer.parseInt(param);
+		try {
+			service.deleteClient(client_id);
+			ctx.status(200);
+			ctx.result("Client successfully deleted.");
+		}
 		
-		
+		catch(SQLException e) {
+			
+			ctx.status(400);
+			ctx.result(e.getMessage());
+			
+		}
 	};
 	
 	public Handler createAccount = (ctx) -> {
 		//Controller level method responsible for creating an account for a client with a matching client_id
 		//Create a new account for a client with id of X (if client exists)
+		String param = ctx.queryParam("client_id");
+		int client_id = Integer.parseInt(param);
+		Account accountToMake = ctx.bodyAsClass(Account.class);
+		accountToMake.setClient_id(client_id);	//I dont care what your trying to set the client id as in the json, all that matters is the client id specified in the endpoint
+												//maybe I'll throw some extra functionality in here in the eventuality that they don't match up. 
+		
+		service.createAccount(accountToMake);
 		
 		
 	};
@@ -148,6 +171,7 @@ public class Controller {
 		
 		
 	};
+	
 	
 	public Handler getAccount = (ctx) -> {
 		//Controller level method for getting accounts with specific account id. Must also have 
@@ -179,16 +203,16 @@ public class Controller {
 	
 	public void registerEndpoint(Javalin app) {
 		
-		app.post("/clients/newClient", newClient);	
-		app.get("/clients/getAllClients", getAllClients);
-		app.get("/clients/getClient", getClient);
-		app.put("/clients/updateClient", updateClient);
-		app.delete("/clients/deleteClient", deleteClient);
-		app.post("/accounts/createAccount", createAccount);
-		app.get("/accounts/getClientAccounts", getClientAccounts);
-		app.get("/accounts/getAccount", getAccount);
-		app.put("/accounts/updateAccount", updateAccount);
-		app.delete("/accounts/deleteAccount", deleteAccount);
+		app.post("/clients", newClient);	
+		app.get("/clients", getAllClients);
+		app.get("/clients/{client_id}", getClient);
+		app.put("/clients/{client_id}", updateClient);
+		app.delete("/clients/{client_id}", deleteClient);
+		app.post("/clients/{client_id}/accounts", createAccount);
+		app.get("/clients/{client_id}/accounts", getClientAccounts);
+		app.get("/clients/{client_id}/accounts/{account_id}", getAccount);
+		app.put("/clients/{client_id}/accounts/{account_id}", updateAccount);
+		app.delete("/clients/{client_id}/accounts/{account_id}", deleteAccount);
 		
 	}
 	
