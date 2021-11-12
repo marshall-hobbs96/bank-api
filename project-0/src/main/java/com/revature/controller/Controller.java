@@ -2,6 +2,7 @@ package com.revature.controller;
 
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class Controller {
 	public Handler newClient = (ctx) -> { 
 		//controller level method for creating a new client. POST
 		//POST /clients: Creates a new client
-		logger.info("newClient called in controller layer.");
+		logger.info("newClient called");
 		//Need to handle if names have more than 255 characters. This is our limit in our database. Also need to make sure 
 		//we have both a first and last name.
 		// I would like to disable exceptions for unrecognized fields in our json so I can handle that myself, but I can't figure that out
@@ -49,7 +50,7 @@ public class Controller {
 			
 			ctx.status(406);
 			ctx.result(e.getMessage());
-			logger.info(e.getMessage());
+			logger.error(e.getMessage());
 			
 		}
 		
@@ -57,7 +58,7 @@ public class Controller {
 			
 			ctx.status(400);
 			ctx.result(e.getMessage());
-			logger.info(e.getMessage());
+			logger.error(e.getMessage());
 			
 		}
 		
@@ -68,11 +69,12 @@ public class Controller {
 		//controller level method for getting all clients. GET
 		//GET /clients: Gets all clients
 		//maybe I'll add some additional functionality to this later because it feels just too easy, but for now I'm pretty sure it meets the project requirements so *shrug*
-		
+		logger.info("getAllClients called");
 		try {
-			
+		ArrayList<Client>  clientList = service.getAllClients();
 		ctx.status(200);
-		ctx.json(service.getAllClients());
+		ctx.json(clientList);
+		logger.info("getAllClients completed successfully. " + clientList);
 		
 		}
 		
@@ -80,6 +82,7 @@ public class Controller {
 			
 			ctx.status(204);
 			ctx.result(e.getMessage());
+			logger.error(e.getMessage());
 			
 		}
 		
@@ -88,20 +91,23 @@ public class Controller {
 	public Handler getClient = (ctx) -> {
 		//Controller level method for getting info on specific client. GET
 		//GET /clients/{client_id}: Get client with an id of X (if the client exists)
-		
+		logger.info("getClient called.");
 		try {
 		
+			
 			String param = ctx.pathParam("client_id");
 			int client_id = Integer.parseInt(param);
 			Client returnClient = service.getClient(client_id);
 			ctx.json(returnClient);
 			ctx.status(200);
+			logger.info("getClient completed successfully. " + returnClient);
 			
 		}
 		
 		catch(SQLException e) {
 			ctx.status(406); //Not acceptable
 			ctx.result(e.getMessage());
+			logger.error(e.getMessage());
 			
 		}
 		
@@ -111,6 +117,7 @@ public class Controller {
 	public Handler updateClient = (ctx) -> {
 		//Controller level method for updating info on specific client. PUT
 		//PUT /clients/{client_id}: Update client with an id of X (if the client exists)
+		logger.info("updateClient called.");
 		try {
 			String param = ctx.pathParam("client_id");
 			int client_id = Integer.parseInt(param);
@@ -120,12 +127,14 @@ public class Controller {
 			
 			ctx.status(200);
 			ctx.json(returnClient);
+			logger.info("updateClient completed successfully. " + returnClient);
 		}
 		
 		catch(SQLException e) {
 			
 			ctx.result(e.getMessage());
 			ctx.status(400);
+			logger.error(e.getMessage());
 			
 		}
 		
@@ -133,7 +142,7 @@ public class Controller {
 			
 			ctx.status(406);
 			ctx.result(e.getMessage());
-			
+			logger.error(e.getMessage());
 		}
 		
 	};
@@ -141,18 +150,22 @@ public class Controller {
 	public Handler deleteClient = (ctx) -> {
 		//Controller level method for deleting specific client. DELETE
 		//DELETE /clients/{client_id}: Delete client with an id of X (if the client exists)
+		logger.info("deleteClient called.");
 		String param = ctx.pathParam("client_id");
 		int client_id = Integer.parseInt(param);
 		try {
 			service.deleteClient(client_id);
 			ctx.status(200);
 			ctx.result("Client successfully deleted.");
+			logger.info("deletedClient completed successfully. ID of client deleted: " + client_id);
+	
 		}
 		
 		catch(SQLException e) {
 			
 			ctx.status(400);
 			ctx.result(e.getMessage());
+			logger.error(e.getMessage());
 			
 		}
 	};
@@ -160,14 +173,19 @@ public class Controller {
 	public Handler createAccount = (ctx) -> {
 		//Controller level method responsible for creating an account for a client with a matching client_id
 		//Create a new account for a client with id of X (if client exists)
+		logger.info("createAccount called.");
 		String param = ctx.pathParam("client_id");
 		int client_id = Integer.parseInt(param);
 		Account accountToMake = ctx.bodyAsClass(Account.class);
 		accountToMake.setClient_id(client_id);	//I dont care what your trying to set the client id as in the json, all that matters is the client id specified in the endpoint
 												//maybe I'll throw some extra functionality in here in the eventuality that they don't match up. 
+		
 		try {
-			
-			service.createAccount(accountToMake);
+			logger.info(accountToMake.getAccount_type());
+			Account accountMade = service.createAccount(accountToMake);
+			ctx.json(accountMade);
+			ctx.status(200);
+			logger.info("createAccount completed successfully. " + accountMade);
 			
 		}
 		
@@ -175,6 +193,7 @@ public class Controller {
 			
 			ctx.status(400);
 			ctx.result(e.getMessage());
+			logger.error(e.getMessage());
 			
 		}
 		
@@ -182,6 +201,7 @@ public class Controller {
 			
 			ctx.status(406);
 			ctx.result(e.getMessage());
+			logger.error(e.getMessage());
 			
 		}
 		
@@ -211,36 +231,55 @@ public class Controller {
 		try {
 			if(ctx.queryParam("amountLessThan") != null && ctx.queryParam("amountGreaterThan") != null ) {
 				
+				logger.info("getClientAccounts with greaterThan and lessThan paramters called.");
 				String lessThanParam = ctx.	queryParam("amountLessThan");
 				String greaterThanParam = ctx.queryParam("amountGreaterThan");
 				double lessThan = Double.parseDouble(lessThanParam);
 				double greaterThan = Double.parseDouble(greaterThanParam);
 				
-				ctx.json(service.getClientAccounts(client_id, lessThan, greaterThan));
+				ArrayList<Account> clientAccounts = service.getClientAccounts(client_id, lessThan, greaterThan);
+				
+				ctx.json(clientAccounts);
 				ctx.status(200);
+				logger.info("getClientAccounts completed successfully. " + clientAccounts);
 				
 			} else if(ctx.queryParam("amountLessThan") != null) {
+				
+				logger.info("getClientAccounts with lessThan parameter called.");
 				
 				String lessThanParam = ctx.queryParam("amountLessThan");
 				double lessThan = Double.parseDouble(lessThanParam);
 				
-				ctx.json(service.getClientAccounts(client_id, lessThan, -1000000000)); //greater than some really negative number. I'll probaby change this later, because it obviously introduces some edge cases
+				ArrayList<Account> clientAccounts = service.getClientAccounts(client_id, lessThan, -1000000000);
+				
+				ctx.json(clientAccounts); //greater than some really negative number. I'll probaby change this later, because it obviously introduces some edge cases
 				ctx.status(200);
 				
+				logger.info("getClientAccounts completed successfully. " + clientAccounts);
+				
 			} else if(ctx.queryParam("amountGreaterThan") != null) {
+				
+				logger.info("getClientAccounts with greaterThan parameter called.");
 				
 				String greaterThanParam = ctx.queryParam("amountGreaterThan");
 				double greaterThan = Double.parseDouble(greaterThanParam);
 				
-				ctx.json(service.getClientAccounts(client_id, 1000000000, greaterThan));
+				ArrayList<Account> clientAccounts = service.getClientAccounts(client_id, 1000000000, greaterThan);
+				
+				ctx.json(clientAccounts);
 				ctx.status(200);
+				logger.info("getClientAccounts completed successfully. " + clientAccounts);
 				
 			} else {
 				
-	
+				logger.info("getClientAccounts with no extra parameters passed.");
+				
+				ArrayList<Account> clientAccounts = service.getClientAccounts(client_id);
 					
-				ctx.json(service.getClientAccounts(client_id));
+				ctx.json(clientAccounts);
 				ctx.status(200);
+				
+				logger.info("getClientAccounts completed successfully. " + clientAccounts);
 	
 				
 			}
@@ -250,6 +289,7 @@ public class Controller {
 			
 			ctx.status(400);
 			ctx.result(e.getMessage());
+			logger.error(e.getMessage());
 			
 		}
 		
@@ -263,6 +303,9 @@ public class Controller {
 		//a matching client ID. I.E, only can access accounts belonging to a client. GET
 		//GET /clients/{client_id}/accounts/{account_id}: Get account with id of Y belonging to client 
 		//with id of X (if client and account exist AND if account belongs to client)
+		
+		logger.info("getAccount called.");
+		
 		String clientIdParam = ctx.pathParam("client_id");
 		String accountIdParam = ctx.pathParam("account_id");
 		int client_id = Integer.parseInt(clientIdParam);
@@ -270,8 +313,10 @@ public class Controller {
 		
 		try {
 			
-			ctx.json(service.getClientAccount(client_id, account_id));
+			Account account = service.getClientAccount(client_id, account_id);
+			ctx.json(account);
 			ctx.status(200);
+			logger.info("getAccount called successfully. " + account);
 			
 		}
 		
@@ -279,6 +324,7 @@ public class Controller {
 			
 			ctx.status(400);
 			ctx.result(e.getMessage());
+			logger.error(e.getMessage());
 			
 		}
 		
@@ -290,6 +336,9 @@ public class Controller {
 		//belong to matching client id. PUT
 		//PUT /clients/{client_id}/accounts/{account_id}: Update account with id of Y belonging to client 
 		//with id of X (if client and account exist AND if account belongs to client)
+		
+		logger.info("updateAccount called.");
+		
 		String clientIdParam = ctx.pathParam("client_id");
 		String accountIdParam = ctx.pathParam("account_id");
 		int client_id = Integer.parseInt(clientIdParam);
@@ -301,8 +350,10 @@ public class Controller {
 		
 		try {
 			
-			ctx.json(service.updateAccount(client_id, updateAccount));
+			Account account = service.updateAccount(client_id, updateAccount);
+			ctx.json(account);
 			ctx.status(200);
+			logger.info("updateAccount completed successfully. " + account);
 			
 		}
 		
@@ -310,7 +361,7 @@ public class Controller {
 			
 			ctx.status(400);
 			ctx.result(e.getMessage());
-			
+			logger.error(e.getMessage());
 		}
 
 		
@@ -321,6 +372,9 @@ public class Controller {
 		//belong to matching client id. DELETE
 		//DELETE /clients/{client_id}/accounts/{account_id}: Delete account with id of Y belonging to 
 		//client with id of X (if client and account exist AND if account belongs to client)
+		
+		logger.info("deleteAccount called.");
+		
 		String clientIdParam = ctx.pathParam("client_id");
 		String accountIdParam = ctx.pathParam("account_id");
 		int client_id = Integer.parseInt(clientIdParam);
@@ -331,6 +385,7 @@ public class Controller {
 			service.deleteAccount(client_id, account_id);
 			ctx.status(200);
 			ctx.result("Account successfully deleted");
+			logger.info("deleteAccount completed successfully. Deleted ID: " + account_id);
 			
 		}
 		
@@ -338,6 +393,8 @@ public class Controller {
 			
 			ctx.status(400);
 			ctx.result(e.getMessage());
+			logger.error(e.getMessage());
+			
 			
 		}
 		

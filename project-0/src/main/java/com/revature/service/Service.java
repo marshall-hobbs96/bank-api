@@ -217,7 +217,7 @@ public class Service {
 		
 		dao.getClient(account.getClient_id());
 		
-		if((account.getAccount_type() != "Savings") && (account.getAccount_type() != "Checkings")) {
+		if((account.getAccount_type().compareTo("Savings") != 0) && (account.getAccount_type().compareTo("Checkings") != 0)) {
 			
 			throw new CharacterLimitException("Unable to create account. Account type not supported (only 'Savings' and 'Checkings').");
 			

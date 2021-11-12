@@ -22,7 +22,7 @@ import com.revature.model.Client;
 import com.revature.service.Service;
 
 @TestMethodOrder(MethodName.class)
-public class ControllerTest {
+public class ServiceTest {
 
 	private  Service sut;
 	private  DAL mockDao; 
