@@ -11,6 +11,7 @@ import com.revature.service.Service;
 import io.javalin.Javalin;
 
 public class Application {
+	
 
 	public static void main(String[] args) {
 		
@@ -24,13 +25,14 @@ public class Application {
 										//just because it sounds fun and will make a good addition to 
 										//my portfolio I think 
 
-		/*Logger logger = LoggerFactory.getLogger(Application.class);
+		Logger logger = LoggerFactory.getLogger(Application.class);
 		
 		app.before(ctx -> {
 			
 			logger.info(ctx.method() + " request received to the " + ctx.path() + " endpoint");
 			
-		});*/
+		});
+		
 		
 		
 		Controller controller = new Controller(new Service(new DAL()));
