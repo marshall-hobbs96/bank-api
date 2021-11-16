@@ -401,6 +401,27 @@ public class Controller {
 		
 	};
 	
+	public Handler getAllAccounts = (ctx) -> {
+		
+		logger.info("getAllAccounts called");
+		try {
+		ArrayList<Account>  accountList = service.getAllAccounts();
+		ctx.status(200);
+		ctx.json(accountList);
+		logger.info("getAllAccounts completed successfully. " + accountList);
+		
+		}
+		
+		catch(SQLException e) {	//maybe different catches for what went wrong. No table? Empty table? Connection lost? But a lot of work just to make sure we get the right http status code 
+			
+			ctx.status(204);
+			ctx.result(e.getMessage());
+			logger.error(e.getMessage());
+			
+		}
+		
+	};
+	
 	public void registerEndpoint(Javalin app) {
 		
 		app.post("/clients", newClient);	
@@ -413,6 +434,7 @@ public class Controller {
 		app.get("/clients/{client_id}/accounts/{account_id}", getAccount);
 		app.put("/clients/{client_id}/accounts/{account_id}", updateAccount);
 		app.delete("/clients/{client_id}/accounts/{account_id}", deleteAccount);
+		app.get("/accounts", getAllAccounts);
 		
 	}
 	

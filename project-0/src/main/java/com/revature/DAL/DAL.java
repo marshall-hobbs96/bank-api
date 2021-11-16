@@ -375,4 +375,35 @@ public class DAL {
 		
 	}
 	
+	public ArrayList<Account> getAllAccounts() throws SQLException { 	//sends a SQL query to return all client_id's , first_name's, last_name's from clients table. Not implementing num_accounts yet
+		
+		ArrayList<Account> returnList = new ArrayList<>(); 
+			
+		String sql = "SELECT * FROM accounts;";
+		
+		PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		
+		ResultSet resultSet = statement.executeQuery();
+		
+		if(resultSet.next() == false) {	
+			//I'm actually kinda proud of this little thing I did. If next() returns false on first try, then it means clients table is empty and we need to throw an exception saying our clients table
+			//is empty. But now weve iterated resultSet, so how do we do a while loop to iterate over all the elements without skipping the first element? A DO WHILE LOOP! (Just suprised I found
+			//a use for this kind of loop so early on from learning about it, and without forcing it. Just feels like a natural application of it) 
+			
+			throw new SQLException("No accounts to get. accounts table is empty");		
+			//I mean probably not how SQLException was intended to be used, but it works and I'd really rather not make a new exception class for this one case
+		}
+		
+		do {
+			
+			Account account = new Account(resultSet.getInt("client_id"), resultSet.getInt("account_id"), resultSet.getString("account_type"), resultSet.getDouble("funds"));
+			returnList.add(account);
+			
+		}while(resultSet.next());
+		
+		return returnList; 		
+		
+			
+	}
+	
 }

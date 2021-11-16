@@ -17,13 +17,13 @@ public class Application {
 		
 		//Need to establish connection for DAL layer first. 
 		//Then set up javalin endpoints for controller layer. 
+		DAL.establishConnection(System.getenv("db_url"), System.getenv("db_username"), System.getenv("db_password"));
 		
-		DAL.establishConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "password");
-		
-		Javalin app = Javalin.create(); //Dont need to add static files because this project doesnt
-										//require an HTML frontend. Will probably add later though 
-										//just because it sounds fun and will make a good addition to 
-										//my portfolio I think 
+		Javalin app = Javalin.create((config) -> {
+			
+			config.enableCorsForOrigin("http://localhost:5500", "http://127.0.0.1:5500", "http://revature-project-0.s3-website.us-east-2.amazonaws.com");
+			
+		});
 
 		Logger logger = LoggerFactory.getLogger(Application.class);
 		

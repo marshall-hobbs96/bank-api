@@ -293,5 +293,11 @@ public class Service {
 		
 		return dao.updateAccount(updateAccount);
 	}
+	
+	public ArrayList<Account> getAllAccounts() throws SQLException {
+		
+		return dao.getAllAccounts();
+		
+	}
 
 }
