@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account recordkeeper</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- We will make use of CSS grid, so we will have our main "grid" inside of this div-->
+    <div class="main-grid-container">
+        <!-- Navigation Bar -->
+        <nav class="main-nav">
+            <ul>
+                <li><a href="./index.html">Clients Table</a></li>
+                <li><a href="./accounts.html">Accounts Table</a></li>
+            </ul>
+        </nav>
+
+        <section class="main-section">
+            <div class="table-container">
+                <h1>Account Management</h1>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Client ID</th>
+                            <th>Account Type</th>
+                            <th>Funds</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-container">
+                <h1>Add a New Account:</h1>
+
+                <label>Client ID:</label>
+                <input id="client-id" type="text" />
+                <label>Account Type:</label>
+                <input id="account-type" type="text" />
+                <label>Initial Funds:</label>
+                <input id="initial-funds" type="text" />
+
+                <button id="account-submit">Add Account</button>
+            </div>
+        </section>
+    </div>
+
+    <script src="accounts.js"></script>
+</body>
+</html>

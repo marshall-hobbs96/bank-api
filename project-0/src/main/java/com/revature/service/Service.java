@@ -233,6 +233,7 @@ public class Service {
 		
 		dao.getClient(client_id);
 		return dao.getClientAccounts(client_id);	//Will return empty if there are no accounts. 
+		
 	}
 
 	public ArrayList<Account> getClientAccounts(int client_id, double lessThan, double greaterThan) throws SQLException {

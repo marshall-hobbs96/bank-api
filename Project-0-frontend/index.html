@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client recordkeeper</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- We will make use of CSS grid, so we will have our main "grid" inside of this div-->
+    <div class="main-grid-container">
+        <!-- Navigation Bar -->
+        <nav class="main-nav">
+            <ul>
+                <li><a href="./index.html">Clients Table</a></li>
+                <li><a href="./accounts.html">Accounts Table</a></li>
+            </ul>
+        </nav>
+
+        <section class="main-section">
+            <div class="table-container">
+                <h1>Client Management</h1>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Client ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Number of Accounts (not implemented)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-container">
+                <label> Select Action:</label>
+                <select id = "action_selector">
+                    <option value = ""></option>
+                    <option value = "Add Client">Add Client</option>
+                    <option value = "Update Client">Update Client</option>
+                    <option value = "Delete Client"> Delete Client</option>
+
+                </select>
+
+                <!--<label>First Name:</label>
+                <input id="first-name" type="text" />
+                <label>Last Name:</label>
+                <input id="last-name" type="text" />-->
+
+
+                <button id="client-submit">Add Client</button>
+            </div>
+        </section>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>

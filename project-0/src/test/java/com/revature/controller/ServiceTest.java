@@ -21,7 +21,7 @@ import com.revature.model.CharacterLimitException;
 import com.revature.model.Client;
 import com.revature.service.Service;
 
-//@TestMethodOrder(MethodName.class)
+@TestMethodOrder(MethodName.class)
 public class ServiceTest {
 
 	private  Service sut;
